@@ -1,0 +1,30 @@
+services:
+  # --- 1. FASTAPI BACKEND ORCHESTRATOR ---
+  - type: web
+    name: prison-backend
+    env: python
+    region: oregon
+    plan: starter
+    buildCommand: "pip install -r requirements.txt || pip install -r services/orchestrator/requirements.txt"
+    startCommand: "uvicorn services.orchestrator.main:app --host 0.0.0.0 --port 8000"
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: ENVIRONMENT
+        value: production
+
+  # --- 2. NEXT.JS FRONTEND DASHBOARD ---
+  - type: web
+    name: prison-frontend
+    env: node
+    region: oregon
+    plan: starter
+    rootDir: apps/web
+    buildCommand: "npm install --legacy-peer-deps && npm run build"
+    startCommand: "npm run start"
+    envVars:
+      - key: NEXT_PUBLIC_BACKEND_URL
+        fromService:
+          type: web
+          name: prison-backend
+          property: url
