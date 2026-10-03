@@ -2,18 +2,24 @@
  * PRISON API Client — wraps all backend calls to orchestrator (8000) and telemetry (8001)
  */
 
-const ORCH = '/api/orchestrator';
-const TELE = '/api/telemetry';
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://prison-backend.onrender.com';
+const ORCH = `${BACKEND_URL}/api/orchestrator`;
+const TELE = `${BACKEND_URL}/api/telemetry`;
 
 // ── Helpers ────────────────────────────────────────────────
 async function request(url, opts = {}) {
-  const res = await fetch(url, {
-    headers: { 'Content-Type': 'application/json', ...opts.headers },
-    ...opts,
-  });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
-  return data;
+  try {
+    const res = await fetch(url, {
+      headers: { 'Content-Type': 'application/json', ...opts.headers },
+      ...opts,
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
+    return data;
+  } catch (error) {
+    console.error('[API Fetch Error]:', error);
+    return {}; // Empty fallback data to prevent SSR 500 crashes
+  }
 }
 
 // ── Orchestrator (port 8000) ───────────────────────────────
