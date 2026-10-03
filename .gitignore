@@ -26,6 +26,7 @@ dist/
 # OS files
 .DS_Store
 Thumbs.db
+apps/web/.next
 
 # Environment variables — NEVER commit real credentials
 .env
