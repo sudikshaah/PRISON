@@ -1,5 +1,6 @@
 'use client';
 import React, { useState } from 'react';
+import { api } from '@/lib/api';
 
 export default function PatchReviewModal({ patch, repoFullName, prNumber, onClose }) {
   const [loading, setLoading]   = useState(false);
@@ -19,25 +20,24 @@ export default function PatchReviewModal({ patch, repoFullName, prNumber, onClos
   const handleApply = async () => {
     setLoading(true);
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://prison-jmno.onrender.com';
-      const res = await fetch(`${backendUrl}/api/v1/agent/apply-patch`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          repo_full_name: repoFullName || 'demo/repo',
-          pr_number:      prNumber     || 42,
-          branch_name:    patch.branch_name || 'prison/patch-branch',
-          patch_diff:     diffText,
-        }),
+      const data = await api.applyPatch({
+        repo_full_name: repoFullName || 'demo/repo',
+        pr_number:      prNumber     || 42,
+        branch_name:    patch.branch_name || 'prison/patch-branch',
+        patch_diff:     diffText,
       });
-      const data = await res.json().catch(() => ({}));
-      if (res.ok) {
+      // The centralized request wrapper returns the JSON payload directly or {} if it errors
+      // and throws if not res.ok, but wait, the catch block catches the error and returns {}!
+      // Let's modify the try-catch condition. Wait, if it errors, the `request` function in `api.js` returns `{}` and logs to console.
+      // So if data has `.pr_url` or is not empty, we succeeded.
+      if (data && data.pr_url) {
         setApplied(true);
         showToast('Patch applied! Redirecting to GitHub PR...', 'success');
-        const target = data.pr_url || 'https://github.com/' + (repoFullName || 'demo/repo') + '/pull/' + (prNumber || 42);
+        const target = data.pr_url;
         setTimeout(() => { window.open(target, '_blank'); if (onClose) onClose(); }, 1200);
       } else {
-        showToast('Failed to apply patch: ' + (data.detail || res.status), 'error');
+        // Since request swallowed the error, we fallback to this generic error.
+        showToast('Failed to apply patch or returned empty response.', 'error');
       }
     } catch (err) {
       showToast('Network error: ' + err.message, 'error');

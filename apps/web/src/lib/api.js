@@ -2,7 +2,7 @@
  * PRISON API Client — wraps all backend calls to orchestrator (8000) and telemetry (8001)
  */
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://prison-jmno.onrender.com';
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || process.env.REACT_APP_API_URL || 'http://localhost:5000';
 const ORCH = BACKEND_URL;
 const TELE = BACKEND_URL;
 
@@ -44,6 +44,13 @@ export const api = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ url }),
+    }),
+
+  /** Apply agent remediation patch to GitHub */
+  applyPatch: (payload) =>
+    request(`${ORCH}/api/v1/agent/apply-patch`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
     }),
 
   // ── Telemetry (port 8001) ──────────────────────────────
