@@ -70,15 +70,18 @@ export default function SandboxPage() {
     addLine('agent','[PRISON] Initiating detonation for: '+url);
     try {
       const data = await api.detonateSync(url);
+      if (!data || !data.execution_id) {
+        throw new Error(data?.detail || 'Detonation payload returned empty response.');
+      }
       setSandboxId(data.execution_id);
       setApiStatus(data.status);
       addLine('running','[PRISON] Sandbox ID: '+data.execution_id);
       let fullName='demo/repo', prNum=42;
       try { const m=url.match(/github\.com\/([^/]+\/[^/]+)\/pull\/(\d+)/); if(m){fullName=m[1];prNum=+m[2];} } catch{}
       setRepoMeta({fullName,prNumber:prNum});
-      data.terminal_logs.forEach((l,i)=>setTimeout(()=>addLine(l.type,l.msg),i*280));
-      const base = data.terminal_logs.length*280;
-      setTimeout(()=>{setEvents(data.ebpf_events||[]);setStage('observing');},base);
+      (data?.terminal_logs || []).forEach((l,i)=>setTimeout(()=>addLine(l.type,l.msg),i*280));
+      const base = (data?.terminal_logs || []).length*280;
+      setTimeout(()=>{setEvents(data?.ebpf_events||[]);setStage('observing');},base);
       setTimeout(()=>{
         if(data.nodes?.length) setDag({execution_id:data.execution_id,nodes:data.nodes,edges:data.edges||[],has_honeypot_hit:data.severity>80,has_malicious_node:data.severity>50});
         setReport({threat_detected:data.severity>0,severity_score:data.severity,confidence_score:data.confidence,summary:data.summary||'Analysis complete.',gating_action:data.gating_action||'ALLOW_MERGE'});

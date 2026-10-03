@@ -16,10 +16,11 @@ const LAYOUT = {
   canvasH: 360,
 };
 
-function computePositions(nodes, edges) {
+function computePositions(nodes = [], edges = []) {
+  if (!nodes || !nodes.length) return {};
   // Simple layered layout: BFS from roots
   const inDeg = Object.fromEntries(nodes.map((n) => [n.id, 0]));
-  edges.forEach((e) => { if (inDeg[e.target] !== undefined) inDeg[e.target]++; });
+  (edges || []).forEach((e) => { if (inDeg[e.target] !== undefined) inDeg[e.target]++; });
   const layers = [];
   const assigned = new Set();
   let queue = nodes.filter((n) => inDeg[n.id] === 0);
@@ -27,11 +28,11 @@ function computePositions(nodes, edges) {
     layers.push(queue.map((n) => n.id));
     queue.forEach((n) => assigned.add(n.id));
     const nextIds = new Set();
-    edges.forEach((e) => { if (assigned.has(e.source) && !assigned.has(e.target)) nextIds.add(e.target); });
+    (edges || []).forEach((e) => { if (assigned.has(e.source) && !assigned.has(e.target)) nextIds.add(e.target); });
     queue = nodes.filter((n) => nextIds.has(n.id));
   }
   // Assign remaining
-  nodes.forEach((n) => { if (!assigned.has(n.id)) { layers.push([n.id]); assigned.add(n.id); } });
+  (nodes || []).forEach((n) => { if (!assigned.has(n.id)) { layers.push([n.id]); assigned.add(n.id); } });
 
   const posMap = {};
   const layerCount = layers.length;
@@ -95,7 +96,7 @@ export default function AttackGraph({ dag, onNodeClick }) {
         ))}
 
         {/* Edges */}
-        {edges.map((e, i) => {
+        {(edges || []).map((e, i) => {
           const s = posMap[e.source];
           const t = posMap[e.target];
           if (!s || !t) return null;
@@ -124,7 +125,7 @@ export default function AttackGraph({ dag, onNodeClick }) {
         })}
 
         {/* Nodes */}
-        {nodes.map((node) => {
+        {(nodes || []).map((node) => {
           const pos = posMap[node.id];
           if (!pos) return null;
           const colors = NODE_COLORS[node.node_type] || NODE_COLORS.BLUE_STANDARD;
