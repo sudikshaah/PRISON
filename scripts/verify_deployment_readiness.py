@@ -97,7 +97,7 @@ if os.path.isdir(demo_path):
         check("execution_id present",                  bool(data.get("execution_id")))
         sev = data.get("severity", 0)
         check("severity > 50 for malicious repo",      sev > 50,                  f"severity={sev}")
-        has_patch = bool(data.get("patch_diff", "").strip())
+        has_patch = bool((data.get("patch_diff") or "").strip())
         check("PATCH_AVAILABLE: patch_diff non-empty", has_patch)
         check("terminal_logs contain ANAKIN line",
               any("ANAKIN" in l.get("msg","") for l in data.get("terminal_logs",[])))

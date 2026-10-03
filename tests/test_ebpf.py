@@ -20,7 +20,7 @@ def test_ebpf_tracer_lifecycle():
     tracer.generate_synthetic_telemetry(honeypot_triggered=True, decoy_name="AWS_SECRET_ACCESS_KEY")
     events = tracer.stop_tracing()
 
-    assert len(events) == 4
+    assert len(events) == 5
     types = [e.event_type for e in events]
     assert EventType.EXECVE in types
     assert EventType.HONEYPOT_TRIGGER in types
@@ -40,4 +40,4 @@ def test_event_dumper():
         with open(filepath, "r") as f:
             data = json.load(f)
             assert data["sandbox_id"] == "sbx_test_456"
-            assert len(data["events"]) == 3
+            assert len(data["events"]) == 4

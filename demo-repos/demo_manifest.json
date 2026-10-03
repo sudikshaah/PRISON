@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-10-02T20:57:44Z",
+  "generated_at": "2026-10-03T08:25:18Z",
   "scenarios": [
     {
       "scenario": "scenario-a-clean",
       "label": "Scenario A \u2014 Clean PR (Math Utility)",
-      "path": "C:\\Users\\Admin\\Desktop\\PRISON\\demo-repos\\scenario-a-clean",
+      "path": "C:\\Users\\karso\\OneDrive\\Desktop\\PRISON\\PRISON\\demo-repos\\scenario-a-clean",
       "expected": "[STATUS: SAFE] \u2014 ALLOW_MERGE",
       "detected": false,
       "malicious_scripts": [],
@@ -14,7 +14,7 @@
     {
       "scenario": "scenario-b-malicious",
       "label": "Scenario B \u2014 Malicious PR (Credential Exfiltration)",
-      "path": "C:\\Users\\Admin\\Desktop\\PRISON\\demo-repos\\scenario-b-malicious",
+      "path": "C:\\Users\\karso\\OneDrive\\Desktop\\PRISON\\PRISON\\demo-repos\\scenario-b-malicious",
       "expected": "[STATUS: BREACH DETECTED] \u2014 BLOCK_PR + DeepSeek patch",
       "detected": true,
       "malicious_scripts": [
@@ -27,7 +27,7 @@
     {
       "scenario": "scenario-c-semgrep-fallback",
       "label": "Scenario C \u2014 Semgrep Static Fallback (No GitHub App Token)",
-      "path": "C:\\Users\\Admin\\Desktop\\PRISON\\demo-repos\\scenario-c-semgrep-fallback",
+      "path": "C:\\Users\\karso\\OneDrive\\Desktop\\PRISON\\PRISON\\demo-repos\\scenario-c-semgrep-fallback",
       "expected": "[STATUS: STATIC_FLAGGED] \u2014 Semgrep detects hardcoded secrets",
       "detected": false,
       "malicious_scripts": [],

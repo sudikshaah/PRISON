@@ -1,18 +1,18 @@
 """
 PRISON Telemetry & eBPF Event Ingestion Service (`TRACECOMMON` Track).
-Exposed on port 8001.
+Exposed on port 8000/8001.
 """
 
-from fastapi import FastAPI, status
+from fastapi import FastAPI, status, Depends, BackgroundTasks
 from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
 import asyncio
-from fastapi import BackgroundTasks
 
 from services.telemetry.schemas.events import RawEbpfEvent
 from services.telemetry.pipeline.normalizer import EventNormalizer
 from services.telemetry.pipeline.dag_builder import DAGBuilder
 from services.agent.triage.engine import AnakinTriageEngine
+from services.telemetry.auth import get_current_user
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -59,7 +59,9 @@ def read_root():
 def health_check():
     return {"status": "healthy"}
 
+
 engine = AnakinTriageEngine()
+
 
 async def process_telemetry_background(payload: TelemetryEventPayload):
     builder = DAGBuilder(execution_id=payload.sandbox_id)
@@ -88,13 +90,18 @@ async def process_telemetry_background(payload: TelemetryEventPayload):
 
     dag = builder.build()
     report = await engine.evaluate_dag(dag)
-    # The actual patch generation might happen here or in another worker
     return report
 
 
 @app.post("/api/v1/telemetry/events", status_code=status.HTTP_201_CREATED)
-def ingest_telemetry(payload: TelemetryEventPayload, background_tasks: BackgroundTasks):
-    telemetry_store.append(payload.model_dump())
+def ingest_telemetry(
+    payload: TelemetryEventPayload,
+    background_tasks: BackgroundTasks,
+    user_id: str = Depends(get_current_user)
+):
+    event_data = payload.model_dump()
+    event_data["ingested_by_user"] = user_id
+    telemetry_store.append(event_data)
     background_tasks.add_task(process_telemetry_background, payload)
     return {
         "status": "INGESTED",
@@ -104,7 +111,7 @@ def ingest_telemetry(payload: TelemetryEventPayload, background_tasks: Backgroun
 
 
 @app.get("/api/v1/telemetry/events")
-def get_telemetry_events():
+def get_telemetry_events(user_id: str = Depends(get_current_user)):
     return {
         "count": len(telemetry_store),
         "telemetry": telemetry_store

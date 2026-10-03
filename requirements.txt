@@ -1,8 +1,20 @@
 fastapi>=0.100.0
 uvicorn[standard]>=0.20.0
 pydantic>=2.0.0
+sqlalchemy>=2.0.0
+greenlet
+asyncpg
+aiosqlite
+redis
+pytest
+pytest-asyncio
+langchain
+openai
+clerk-backend-api
+pyjwt
 requests>=2.28.0
 httpx>=0.24.0
 python-dotenv>=1.0.0
 python-multipart>=0.0.6
 semgrep; platform_system == "Linux"
+
