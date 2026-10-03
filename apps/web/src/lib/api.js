@@ -2,9 +2,9 @@
  * PRISON API Client — wraps all backend calls to orchestrator (8000) and telemetry (8001)
  */
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://prison-backend.onrender.com';
-const ORCH = `${BACKEND_URL}/api/orchestrator`;
-const TELE = `${BACKEND_URL}/api/telemetry`;
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://prison-jmno.onrender.com';
+const ORCH = BACKEND_URL;
+const TELE = BACKEND_URL;
 
 // ── Helpers ────────────────────────────────────────────────
 async function request(url, opts = {}) {

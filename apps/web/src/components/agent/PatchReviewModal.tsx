@@ -19,7 +19,8 @@ export default function PatchReviewModal({ patch, repoFullName, prNumber, onClos
   const handleApply = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/orchestrator/api/v1/agent/apply-patch', {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://prison-jmno.onrender.com';
+      const res = await fetch(`${backendUrl}/api/v1/agent/apply-patch`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
